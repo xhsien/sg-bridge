@@ -28,7 +28,7 @@ const styles = {
     display: 'flex',
   },
   joinRoomJoin: {
-    marginRight: '10px',
+    marginLeft: '10px',
     marginTop: '8px',
   },
 }
@@ -60,6 +60,11 @@ export default class EntryView extends React.Component {
           </div>
 
           <div style={styles.joinRoomContainer}>
+            <TextField
+              required
+              label = 'Room number'
+              onChange = {(event) => this.props.onRoomNumberChanged(event.target.value)}
+            />
             <div style={styles.joinRoomJoin}>
               <Button
                 variant = 'contained'
@@ -68,11 +73,6 @@ export default class EntryView extends React.Component {
                 Join
               </Button>
             </div>
-            <TextField
-              required
-              label = 'Room number'
-              onChange = {(event) => this.props.onRoomNumberChanged(event.target.value)}
-            />
           </div>
 
         </div>
