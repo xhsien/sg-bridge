@@ -15,7 +15,7 @@ module.exports = (io, socket) => {
   socket.on('new room', (callback) => {
     const newRoomNumber = getNewRoom();
 
-    roomToPlayers.set(newRoomNumber, [{username: socket.username, isHost: true}]);
+    roomToPlayers.set(newRoomNumber, [{id: socket.id, username: socket.username, isHost: true}]);
     socket.join(newRoomNumber);
 
     callback({
@@ -30,7 +30,7 @@ module.exports = (io, socket) => {
       return;
     }
 
-    roomToPlayers.get(roomNumber).push({username: socket.username, isHost: false});
+    roomToPlayers.get(roomNumber).push({id: socket.id, username: socket.username, isHost: false});
     socket.join(roomNumber);
 
     callback({

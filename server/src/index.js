@@ -1,6 +1,7 @@
 const config = require('./config.js');
 const express = require('express');
 const http = require('http');
+const registerGameHandler = require('./gameHandler.js');
 const registerRoomHandler = require('./roomHandler.js');
 const { Server } = require('socket.io');
 
@@ -33,5 +34,6 @@ ioServer.on('connection', (socket) => {
     console.log(`User ${socket.username} disconnected.`);
   });
 
+  registerGameHandler(ioServer, socket);
   registerRoomHandler(ioServer, socket);
 });

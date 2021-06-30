@@ -1,4 +1,5 @@
 import EntryView from './components/entryView.js';
+import GameView from './components/gameView.js';
 import React from 'react';
 import RoomView from './components/roomView.js';
 import socket from './socket/index.js';
@@ -12,10 +13,33 @@ class App extends React.Component {
 
     this.state = {
       view: 'ENTRY_VIEW', // ENTRY_VIEW, ROOM_VIEW, GAME_VIEW
+      id: null,
       username: null,
       roomNumber: null,
       players: null,
     };
+  }
+
+  registerHandler(socket) {
+    socket.on('connect', () => {
+      this.setState({
+        id: socket.id,
+      });
+    });
+
+    socket.on('room update', (players) => {
+      this.setState({
+        players: players,
+      });
+    });
+
+    socket.on('game started', () => {
+      console.log('received game started event');
+
+      this.setState({
+        view: 'GAME_VIEW',
+      });
+    });
   }
 
   onUsernameChanged(username) {
@@ -27,9 +51,6 @@ class App extends React.Component {
   onRoomNumberChanged(roomNumber) {
     this.setState({
       roomNumber: roomNumber,
-      players: [
-        this.state.username,
-      ],
     });
   }
 
@@ -41,18 +62,13 @@ class App extends React.Component {
 
     socket.auth = { username: this.state.username };
     socket.connect();
+    this.registerHandler(socket);
 
     socket.emit('new room', (response) => {
       this.setState({
         view: 'ROOM_VIEW',
         roomNumber: response.roomNumber,
         players: response.players,
-      });
-    });
-
-    socket.on('room update', (players) => {
-      this.setState({
-        players: players,
       });
     });
   }
@@ -70,10 +86,9 @@ class App extends React.Component {
 
     socket.auth = { username: this.state.username };
     socket.connect();
+    this.registerHandler(socket);
 
     socket.emit('join room', this.state.roomNumber, (response) => {
-      console.log(response);
-
       if (!response) {
         alert('Room does not exist.');
         return;
@@ -85,22 +100,29 @@ class App extends React.Component {
         players: response.players,
       });
     });
+  }
 
-    socket.on('room update', (players) => {
-      this.setState({
-        players: players,
-      });
-    });
+  onStartButtonPressed() {
+    console.log('emit start game');
+    console.log(this.state.roomNumber);
+    socket.emit('start game', this.state.roomNumber);
   }
 
   getView() {
     switch (this.state.view) {
       case 'GAME_VIEW':
+        return (
+          <GameView
+          />
+        );
       case 'ROOM_VIEW':
         return (
           <RoomView
             roomNumber = {this.state.roomNumber}
+            id = {this.state.id}
+            username = {this.state.username}
             players = {this.state.players}
+            onStartButtonPressed = {() => this.onStartButtonPressed()}
           />
         );
       case 'ENTRY_VIEW':
