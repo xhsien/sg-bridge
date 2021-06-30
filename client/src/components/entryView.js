@@ -16,38 +16,67 @@ const styles = {
   },
   username: {
     marginBottom: '100px',
-  }
+  },
+  roomContainer: {
+    display: 'flex',
+  },
+  createRoom: {
+    marginRight: '100px',
+    marginTop: '8px',
+  },
+  joinRoomContainer: {
+    display: 'flex',
+  },
+  joinRoomJoin: {
+    marginRight: '10px',
+    marginTop: '8px',
+  },
 }
 
 export default class EntryView extends React.Component {
   render() {
     return (
       <div style={styles.main}>
+
         <img src={logo} className="App-logo" alt="logo"/>
-        <TextField
-          required
-          label = 'Username'
-          onChange = {(event) => this.props.onUsernameChanged(event.target.value)}
-          style={styles.username}
-        />
-        <Button
-          variant = 'contained'
-          style = {{marginRight: '10px'}}
-          onClick = {() => this.props.onCreateRoom()}
-        >
-          Create Room
-        </Button>
-        <TextField
-          required
-          label = 'Room number'
-          onChange = {(event) => this.props.onRoomNumberChanged(event.target.value)}
-        />
-        <Button
-          variant = 'contained'
-          onClick = {() => this.props.onJoinRoom()}
-        >
-          Join Room
-        </Button>
+
+        <div style={styles.username}>
+          <TextField
+            required
+            label = 'Username'
+            onChange = {(event) => this.props.onUsernameChanged(event.target.value)}
+          />
+        </div>
+
+        <div style={styles.roomContainer}>
+
+          <div style={styles.createRoom}>
+            <Button
+              variant = 'contained'
+              onClick = {() => this.props.onCreateRoom()}
+            >
+              Create Room
+            </Button>
+          </div>
+
+          <div style={styles.joinRoomContainer}>
+            <div style={styles.joinRoomJoin}>
+              <Button
+                variant = 'contained'
+                onClick = {() => this.props.onJoinRoom()}
+              >
+                Join
+              </Button>
+            </div>
+            <TextField
+              required
+              label = 'Room number'
+              onChange = {(event) => this.props.onRoomNumberChanged(event.target.value)}
+            />
+          </div>
+
+        </div>
+
       </div>
     );
   }
