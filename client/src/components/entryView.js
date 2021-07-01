@@ -2,36 +2,7 @@ import Button from '@material-ui/core/Button';
 import React from "react";
 import TextField from '@material-ui/core/TextField';
 import logo from "../logo.svg";
-
-const styles = {
-  main: {
-    backgroundColor: '#f5f5f5',
-    minHeight: '100vh',
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    fontSize: 'calc(10px + 2vmin)',
-    color: 'white',
-  },
-  username: {
-    marginBottom: '100px',
-  },
-  roomContainer: {
-    display: 'flex',
-  },
-  createRoom: {
-    marginRight: '100px',
-    marginTop: '8px',
-  },
-  joinRoomContainer: {
-    display: 'flex',
-  },
-  joinRoomJoin: {
-    marginLeft: '10px',
-    marginTop: '8px',
-  },
-}
+import { styles } from "./styles.js"
 
 export default class EntryView extends React.Component {
   render() {
@@ -40,7 +11,7 @@ export default class EntryView extends React.Component {
 
         <img src={logo} className="App-logo" alt="logo"/>
 
-        <div style={styles.username}>
+        <div style={styles.entry.username}>
           <TextField
             required
             label = 'Username'
@@ -48,9 +19,9 @@ export default class EntryView extends React.Component {
           />
         </div>
 
-        <div style={styles.roomContainer}>
+        <div style={styles.flex}>
 
-          <div style={styles.createRoom}>
+          <div style={styles.entry.createRoomButton}>
             <Button
               variant = 'contained'
               onClick = {() => this.props.onCreateRoom()}
@@ -59,13 +30,13 @@ export default class EntryView extends React.Component {
             </Button>
           </div>
 
-          <div style={styles.joinRoomContainer}>
+          <div style={styles.flex}>
             <TextField
               required
               label = 'Room number'
               onChange = {(event) => this.props.onRoomNumberChanged(event.target.value)}
             />
-            <div style={styles.joinRoomJoin}>
+            <div style={styles.entry.joinRoomButton}>
               <Button
                 variant = 'contained'
                 onClick = {() => this.props.onJoinRoom()}

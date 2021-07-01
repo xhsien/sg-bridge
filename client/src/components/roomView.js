@@ -1,21 +1,6 @@
 import Button from '@material-ui/core/Button';
 import React from "react";
-
-const styles = {
-  main: {
-    backgroundColor: '#f5f5f5',
-    minHeight: '100vh',
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    fontSize: 'calc(10px + 2vmin)',
-    color: 'black',
-  },
-  username: {
-    marginBottom: '100px',
-  }
-}
+import { styles } from "./styles.js"
 
 export default class RoomView extends React.Component {
   render() {
@@ -23,28 +8,37 @@ export default class RoomView extends React.Component {
 
     const playersList = players.map((player, idx) => {
       return (
-        <li key={idx}>
-          {player.username} {player.isHost ? '(Host)' : ''}
-        </li>
+          <div> &nbsp; {player.username} &nbsp; </div>
       );
     });
 
     const isHost = players.filter((player) => player.isHost)[0].id === this.props.id;
 
-    let startButton;
-    if (isHost) {
-      startButton = <Button onClick={() => this.props.onStartButtonPressed()}>Start</Button>;
-    }
+    const startButton = <Button
+                          variant = 'contained'
+                          onClick={() => this.props.onStartButtonPressed()}
+                        >
+                          Start
+                        </Button>;
+
+    const waitText = <div> Waiting for host to start ... </div>
 
     return (
       <div style={styles.main}>
-        <div>
-          Room: {this.props.roomNumber}
+        <div style={styles.room.room}>
+          ROOM {this.props.roomNumber}
         </div>
-        <div>
-          <ol>{playersList}</ol>
+
+        <div style={styles.room.players}>
+          <div style={styles.flex}> Player 1 : {playersList[0]} (Host) </div>
+          <div style={styles.flex}> Player 2 : {playersList[1]} </div>
+          <div style={styles.flex}> Player 3 : {playersList[2]} </div>
+          <div style={styles.flex}> Player 4 : {playersList[3]} </div>
         </div>
-        {startButton}
+
+        <div>
+          {isHost ? startButton : waitText}
+        </div>
       </div>
     );
   }
