@@ -2,7 +2,7 @@ import Button from '@material-ui/core/Button';
 import React from "react";
 import TextField from '@material-ui/core/TextField';
 import logo from "../logo.svg";
-import { styles } from "./styles.js"
+import { styles } from "./styles.js";
 
 export default class EntryView extends React.Component {
   render() {

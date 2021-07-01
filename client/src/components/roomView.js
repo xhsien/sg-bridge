@@ -1,6 +1,6 @@
 import Button from '@material-ui/core/Button';
 import React from "react";
-import { styles } from "./styles.js"
+import { styles } from "./styles.js";
 
 export default class RoomView extends React.Component {
   render() {
@@ -8,7 +8,7 @@ export default class RoomView extends React.Component {
 
     const playersList = players.map((player, idx) => {
       return (
-          <div> &nbsp; {player.username} &nbsp; </div>
+        <div> &nbsp; {player.username} {player.isHost ? '(Host)' : ''} </div>
       );
     });
 
@@ -21,7 +21,7 @@ export default class RoomView extends React.Component {
                           Start
                         </Button>;
 
-    const waitText = <div> Waiting for host to start ... </div>
+    const waitText = <div> Waiting for host to start ... </div>;
 
     return (
       <div style={styles.main}>
@@ -30,7 +30,7 @@ export default class RoomView extends React.Component {
         </div>
 
         <div style={styles.room.players}>
-          <div style={styles.flex}> Player 1 : {playersList[0]} (Host) </div>
+          <div style={styles.flex}> Player 1 : {playersList[0]} </div>
           <div style={styles.flex}> Player 2 : {playersList[1]} </div>
           <div style={styles.flex}> Player 3 : {playersList[2]} </div>
           <div style={styles.flex}> Player 4 : {playersList[3]} </div>
