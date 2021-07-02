@@ -54,7 +54,38 @@ class Game {
 
   setTrumpAndFirstPlayer(trump, firstPlayerId) {
     this.trump = trump;
-    this.nextPlayer = playerIds.indexOf(firstPlayerId);
+    this.nextPlayer = this.playerIds.indexOf(firstPlayerId);
+  }
+
+  playCard(playerId, card) {
+    if (playerId !== this.nextPlayer) {
+      // not this player's turn
+      return false;
+    }
+
+    const order = playerIds.indexOf(playerId);
+
+    const cardIdx = this.playerRemainingCards[order].indexOf(card);
+    if (cardIdx == -1) {
+      // player does not possess the card
+      return false;
+    }
+
+    this.playerRemainingCards[order].splice(index, 1);
+    this.currentRound.push(card);
+
+    if (this.currentRound.length < 4) {
+      this.nextPlayer = (order + 1) % 4;
+    } else if (this.currentRound.length == 4) {
+      const winner = calculateWinner();
+
+      this.roundNumber += 1;
+      this.nextPlayer = winner;
+      this.currentRound = [];
+      this.playerWinCounts[winner] += 1;
+    }
+
+    return true;
   }
 
   getState() {
@@ -65,9 +96,44 @@ class Game {
       playerRemainingCards: this.playerRemainingCards,
       playerWinCounts: this.playerWinCounts,
 
+      trump: this.trump,
+
       playerIds: this.playerIds,
       playerUsernames: this.playerUsernames,
     }
+  }
+
+  calculateWinner() {
+    const hasTrump = this.trump === 'NT' ? false : this.currentRound.some((card) => card[0] === this.trump);
+
+    if (hasTrump) {
+      return getLargestWithTrump(this.currentRound, this.trump);
+    } else {
+      return getLargestWithTrump(this.currentRound, this.currentRound[0][0]);
+    }
+  }
+
+  getLargestWithTrump(cards, trump) {
+    let winner = -1;
+    for (let i = 0; i < 4; i++) {
+      const card = cards[i];
+      if (card[0] != trump) {
+        continue;
+      } else if (winner == -1) {
+        winner = i;
+      } else if (rankLarger(card, cards[winner])) {
+        winner = i;
+      }
+    }
+
+    return winner;
+  }
+
+  rankLarger(card1, card2) {
+    const rank1 = card1[1];
+    const rank2 = card2[1];
+    const rankOrder = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
+    return rankOrder.indexOf(rank1) > rankOrder.indexOf(rank2);
   }
 };
 
@@ -91,8 +157,19 @@ module.exports = (io, socket) => {
   });
 
   socket.on('setup game', (roomNumber, trump, firstPlayerId) => {
+    console.log(`Received setup game event for ${roomNumber}, trump is ${trump} and firstPlayerId is ${firstPlayerId}`);
+
     game[roomNumber].setTrumpAndFirstPlayer(trump, firstPlayerId);
 
-    io.to(roomNumber).emit('game set', game[roomNumber].getState(), trump, firstPlayerId);
+    io.to(roomNumber).emit('game set', game[roomNumber].getState());
   });
+
+  socket.on('play card', (roomNumber, playerId, card) => {
+    const result = game[roomNumber].playCard(playerId, card);
+    if (!result) {
+      return;
+    }
+
+    io.to(roomNumber).emit('card played', game[roomNumber].getState());
+  })
 };
