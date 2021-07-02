@@ -29,10 +29,8 @@ export default class RoomView extends React.Component {
       );
     });
 
-    const isHost = players.filter((player) => player.isHost)[0].id === this.props.id;
-
     let startButton;
-    if (isHost) {
+    if (this.props.isHost) {
       startButton = <Button onClick={() => this.props.onStartButtonPressed()}>Start</Button>;
     }
 

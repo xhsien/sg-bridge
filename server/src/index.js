@@ -9,7 +9,7 @@ const app = express();
 const httpServer = http.createServer(app);
 const ioServer = new Server(httpServer, {
   cors: {
-    origin: config.ALLOWED_FRONTEND_SERVER_URL,
+    origins: config.ALLOWED_FRONTEND_SERVER_URLS,
   }
 });
 

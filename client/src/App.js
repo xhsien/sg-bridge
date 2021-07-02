@@ -17,6 +17,17 @@ class App extends React.Component {
       username: null,
       roomNumber: null,
       players: null,
+      isHost: false,
+
+      // game state
+      roundNumber: null,
+      nextPlayer: null,
+      currentRound: null,
+      playerRemainingCards: null,
+      playerWinCounts: null,
+
+      playerIds: null,
+      playerUsernames: null,
     };
   }
 
@@ -33,11 +44,20 @@ class App extends React.Component {
       });
     });
 
-    socket.on('game started', () => {
+    socket.on('game started', (gameState) => {
       console.log('received game started event');
 
       this.setState({
         view: 'GAME_VIEW',
+
+        roundNumber: gameState.roundNumber,
+        nextPlayer: gameState.nextPlayer,
+        currentRound: gameState.currentRound,
+        playerRemainingCards: gameState.playerRemainingCards,
+        playerWinCounts: gameState.playerWinCounts,
+
+        playerIds: gameState.playerIds,
+        playerUsernames: gameState.playerUsernames,
       });
     });
   }
@@ -69,6 +89,7 @@ class App extends React.Component {
         view: 'ROOM_VIEW',
         roomNumber: response.roomNumber,
         players: response.players,
+        isHost: true,
       });
     });
   }
@@ -105,7 +126,19 @@ class App extends React.Component {
   onStartButtonPressed() {
     console.log('emit start game');
     console.log(this.state.roomNumber);
-    socket.emit('start game', this.state.roomNumber);
+    socket.emit('start game', this.state.roomNumber, (response) => {
+      if (response.error) {
+        alert(response.error);
+      }
+    });
+  }
+
+  onCardPressed(id, card) {
+    socket.emit('', this.state.roomNumber, id, card, (response) => {
+      if (response.error) {
+        alert(response.error);
+      }
+    });
   }
 
   getView() {
@@ -113,6 +146,20 @@ class App extends React.Component {
       case 'GAME_VIEW':
         return (
           <GameView
+            id = {this.state.id}
+            username = {this.state.username}
+            isHost = {this.state.isHost}
+
+            roundNumber = {this.state.roundNumber}
+            nextPlayer = {this.state.nextPlayer}
+            currentRound = {this.state.currentRound}
+            playerRemainingCards = {this.state.playerRemainingCards}
+            playerWinCounts = {this.state.playerWinCounts}
+            
+            playerIds = {this.state.playerIds}
+            playerUsernames = {this.state.playerUsernames}
+
+            onCardPressed = {(id, card) => this.onCardPressed(id, card)}
           />
         );
       case 'ROOM_VIEW':
@@ -122,6 +169,7 @@ class App extends React.Component {
             id = {this.state.id}
             username = {this.state.username}
             players = {this.state.players}
+            isHost = {this.state.isHost}
             onStartButtonPressed = {() => this.onStartButtonPressed()}
           />
         );
