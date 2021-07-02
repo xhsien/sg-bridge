@@ -80,6 +80,18 @@ class App extends React.Component {
         selectedFirstPlayerId: gameState.selectedFirstPlayerId,
       });
     });
+
+    socket.on('card played', (gameState) => {
+      console.log('received card played event');
+
+      this.setState({
+        roundNumber: gameState.roundNumber,
+        nextPlayer: gameState.nextPlayer,
+        currentRound: gameState.currentRound,
+        playerRemainingCards: gameState.playerRemainingCards,
+        playerWinCounts: gameState.playerWinCounts,
+      });
+    });
   }
 
   onUsernameChanged(username) {
@@ -183,7 +195,7 @@ class App extends React.Component {
   }
 
   onCardPressed(id, card) {
-    socket.emit('', this.state.roomNumber, id, card, (response) => {
+    socket.emit('play card', this.state.roomNumber, id, card, (response) => {
       if (response.error) {
         alert(response.error);
       }
