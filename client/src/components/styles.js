@@ -34,4 +34,9 @@ export const styles = {
       marginBottom: '30px',
     },
   },
+  game: {
+    cards: {
+      flexDirection: 'row',
+    },
+  },
 };
