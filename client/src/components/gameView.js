@@ -5,34 +5,9 @@ import FormLabel from '@material-ui/core/FormLabel';
 import Radio from '@material-ui/core/Radio';
 import RadioGroup from '@material-ui/core/RadioGroup';
 import React from "react";
-
-const styles = {
-  main: {
-    backgroundColor: '#f5f5f5',
-    minHeight: '100vh',
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    fontSize: 'calc(10px + 2vmin)',
-    color: 'black',
-  },
-  cards: {
-    flexDirection: 'row',
-  }
-}
+import { styles } from "./styles.js";
 
 export default class GameView extends React.Component {
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      showConfigSelection: false,
-      selectedTrump: null,
-      selectedFirstPlayerId: null,
-    }
-  }
-
   render() {
     const order = this.props.playerIds.indexOf(this.props.id);
 
@@ -48,29 +23,38 @@ export default class GameView extends React.Component {
     });
 
     const configScreen = (
-      <div>
-        <FormControl component="fieldset">
+      <div style={styles.flex}>
+
+        <FormControl component="fieldset" onChange = {(event) => this.props.onTrumpChanged(event.target.value)}>
           <FormLabel component="legend">Select Trump</FormLabel>
-          <RadioGroup aria-label="gender" name="selectTrump">
+          <RadioGroup>
             <FormControlLabel value="S" control={<Radio />} label="S" />
             <FormControlLabel value="H" control={<Radio />} label="H" />
             <FormControlLabel value="D" control={<Radio />} label="D" />
             <FormControlLabel value="C" control={<Radio />} label="C" />
+            <FormControlLabel value="NT" control={<Radio />} label="NT" />
           </RadioGroup>
         </FormControl>
+
+        <FormControl component="fieldset" onChange = {(event) => this.props.onFirstPlayerChanged(event.target.value)}>
+          <FormLabel component="legend">Select First Player</FormLabel>
+          <RadioGroup>
+            <FormControlLabel value={this.props.playerIds[(order + 0) % 4]} control={<Radio />} label={this.props.playerUsernames[(order + 0) % 4]} />
+            <FormControlLabel value={this.props.playerIds[(order + 1) % 4]} control={<Radio />} label={this.props.playerUsernames[(order + 1) % 4]} />
+            <FormControlLabel value={this.props.playerIds[(order + 2) % 4]} control={<Radio />} label={this.props.playerUsernames[(order + 2) % 4]} />
+            <FormControlLabel value={this.props.playerIds[(order + 3) % 4]} control={<Radio />} label={this.props.playerUsernames[(order + 3) % 4]} />
+          </RadioGroup>
+        </FormControl>
+
         <div>
-          <Button variant='contained' onClick={()=>this.setState({selectedTrump: 'S'})}>S</Button>
-          <Button variant='contained' onClick={()=>this.setState({selectedTrump: 'H'})}>H</Button>
-          <Button variant='contained' onClick={()=>this.setState({selectedTrump: 'C'})}>C</Button>
-          <Button variant='contained' onClick={()=>this.setState({selectedTrump: 'D'})}>D</Button>
-          <Button variant='contained' onClick={()=>this.setState({selectedTrump: 'NT'})}>NT</Button>
+          <Button
+            variant = 'contained'
+            onClick = {() => this.props.onSetupGame()}
+          >
+            Start
+          </Button>
         </div>
-        <div>
-          <Button variant='contained'>{this.props.playerUsernames[(order + 0) % 4]}</Button>
-          <Button variant='contained'>{this.props.playerUsernames[(order + 1) % 4]}</Button>
-          <Button variant='contained'>{this.props.playerUsernames[(order + 2) % 4]}</Button>
-          <Button variant='contained'>{this.props.playerUsernames[(order + 3) % 4]}</Button>
-        </div>        
+
       </div>
     );
 
@@ -99,7 +83,8 @@ export default class GameView extends React.Component {
           <div>
             {this.props.playerUsernames[(order + 3) % 4]}
           </div>
-          {this.props.isHost ? configScreen : waitingScreen}
+            {this.props.showConfigSelection && this.props.isHost ? configScreen : ""}
+            {this.props.showConfigSelection && !this.props.isHost ? waitingScreen : ""}
         </div>
       </div>
     );

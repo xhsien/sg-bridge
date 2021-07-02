@@ -13,11 +13,24 @@ class App extends React.Component {
 
     this.state = {
       view: 'ENTRY_VIEW', // ENTRY_VIEW, ROOM_VIEW, GAME_VIEW
+
+      // player
       id: null,
       username: null,
+      isHost: false,
+
+      // room
       roomNumber: null,
       players: null,
-      isHost: false,
+
+      // game setup
+      showConfigSelection: true,
+      selectedTrump: null,
+      selectedFirstPlayerId: null,
+
+      // game players
+      playerIds: null,
+      playerUsernames: null,
 
       // game state
       roundNumber: null,
@@ -25,9 +38,6 @@ class App extends React.Component {
       currentRound: null,
       playerRemainingCards: null,
       playerWinCounts: null,
-
-      playerIds: null,
-      playerUsernames: null,
     };
   }
 
@@ -58,6 +68,16 @@ class App extends React.Component {
 
         playerIds: gameState.playerIds,
         playerUsernames: gameState.playerUsernames,
+      });
+    });
+
+    socket.on('game set', (gameState) => {
+      console.log('received game set event');
+
+      this.setState({
+        showConfigSelection: false,
+        selectedTrump: gameState.selectedTrump,
+        selectedFirstPlayerId: gameState.selectedFirstPlayerId,
       });
     });
   }
@@ -133,6 +153,35 @@ class App extends React.Component {
     });
   }
 
+  onTrumpChanged(selectedTrump) {
+    this.setState({
+      selectedTrump: selectedTrump,
+    });
+  }
+
+  onFirstPlayerChanged(selectedFirstPlayerId) {
+    this.setState({
+      selectedFirstPlayerId: selectedFirstPlayerId,
+    });
+  }
+
+  onSetupGame() {
+    if (!this.state.selectedTrump) {
+      alert('Missing trump.');
+      return;
+    }
+    if (!this.state.selectedFirstPlayerId) {
+      alert('Missing first player.');
+      return;
+    }
+
+    socket.emit('setup game', this.state.roomNumber, this.state.selectedTrump, this.state.selectedFirstPlayerId, (response) => {
+      if (response.error) {
+        alert(response.error);
+      }
+    });
+  }
+
   onCardPressed(id, card) {
     socket.emit('', this.state.roomNumber, id, card, (response) => {
       if (response.error) {
@@ -150,14 +199,20 @@ class App extends React.Component {
             username = {this.state.username}
             isHost = {this.state.isHost}
 
+            showConfigSelection = {this.state.showConfigSelection}
+
+            playerIds = {this.state.playerIds}
+            playerUsernames = {this.state.playerUsernames}
+
             roundNumber = {this.state.roundNumber}
             nextPlayer = {this.state.nextPlayer}
             currentRound = {this.state.currentRound}
             playerRemainingCards = {this.state.playerRemainingCards}
             playerWinCounts = {this.state.playerWinCounts}
-            
-            playerIds = {this.state.playerIds}
-            playerUsernames = {this.state.playerUsernames}
+
+            onTrumpChanged = {(selectedTrump) => this.onTrumpChanged(selectedTrump)}
+            onFirstPlayerChanged = {(selectedFirstPlayerId) => this.onFirstPlayerChanged(selectedFirstPlayerId)}
+            onSetupGame = {() => this.onSetupGame()}
 
             onCardPressed = {(id, card) => this.onCardPressed(id, card)}
           />
