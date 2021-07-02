@@ -24,7 +24,7 @@ class Game {
     this.nextPlayer = null;
     this.currentRound = []; // [{firstPlayer, card}, {secondPlayer, card}, {thirdPlayer, card}, {forthPlayer, card}]
     this.playerRemainingCards = [];
-    this.playerWinCounts = [];
+    this.playerWinCounts = [0, 0, 0, 0];
 
     this.trump = null;
     this.history = [];
@@ -58,12 +58,12 @@ class Game {
   }
 
   playCard(playerId, card) {
-    if (playerId !== this.nextPlayer) {
+    if (playerId !== this.playerIds[this.nextPlayer]) {
       // not this player's turn
       return false;
     }
 
-    const order = playerIds.indexOf(playerId);
+    const order = this.playerIds.indexOf(playerId);
 
     const cardIdx = this.playerRemainingCards[order].indexOf(card);
     if (cardIdx == -1) {
@@ -71,13 +71,13 @@ class Game {
       return false;
     }
 
-    this.playerRemainingCards[order].splice(index, 1);
+    this.playerRemainingCards[order].splice(cardIdx, 1);
     this.currentRound.push(card);
 
     if (this.currentRound.length < 4) {
       this.nextPlayer = (order + 1) % 4;
     } else if (this.currentRound.length == 4) {
-      const winner = calculateWinner();
+      const winner = this.calculateWinner();
 
       this.roundNumber += 1;
       this.nextPlayer = winner;
@@ -107,9 +107,9 @@ class Game {
     const hasTrump = this.trump === 'NT' ? false : this.currentRound.some((card) => card[0] === this.trump);
 
     if (hasTrump) {
-      return getLargestWithTrump(this.currentRound, this.trump);
+      return this.getLargestWithTrump(this.currentRound, this.trump);
     } else {
-      return getLargestWithTrump(this.currentRound, this.currentRound[0][0]);
+      return this.getLargestWithTrump(this.currentRound, this.currentRound[0][0]);
     }
   }
 
@@ -121,7 +121,7 @@ class Game {
         continue;
       } else if (winner == -1) {
         winner = i;
-      } else if (rankLarger(card, cards[winner])) {
+      } else if (this.rankLarger(card, cards[winner])) {
         winner = i;
       }
     }
@@ -165,11 +165,16 @@ module.exports = (io, socket) => {
   });
 
   socket.on('play card', (roomNumber, playerId, card) => {
+    console.log(`player ${playerId} played card ${card}.`);
+
     const result = game[roomNumber].playCard(playerId, card);
     if (!result) {
       return;
     }
 
-    io.to(roomNumber).emit('card played', game[roomNumber].getState());
+    const state = game[roomNumber].getState();
+    console.log(state);
+
+    io.to(roomNumber).emit('card played', state);
   })
 };
