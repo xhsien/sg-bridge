@@ -15,52 +15,52 @@ export default class GameView extends React.Component {
     const order4 = (order + 3) % 4
 
     const cards = this.props.playerRemainingCards[order].map((card, idx) => {
+      const cardImageFilename = 'assets/' + card + '.png';
       return (
         <Button
           key = {idx}
-          variant = 'contained'
           onClick = {() => this.props.onCardPressed(this.props.id, card)}
         >
-          {card}
+          <img src={cardImageFilename} alt={card} width="60" height="90"/>
         </Button>
       );
     });
 
     const cards2 = this.props.playerRemainingCards[order2].map((card, idx) => {
+      const cardImageFilename = 'assets/back_rotate.png';
       return (
         <div>
           <Button
             key = {idx}
-            variant = 'contained'
             disabled
           >
-            00
+            <img src={cardImageFilename} alt='back' width="50" height="35"/>
           </Button>
         </div>
       );
     });
 
     const cards3 = this.props.playerRemainingCards[order3].map((card, idx) => {
+      const cardImageFilename = 'assets/back.png';
       return (
         <Button
           key = {idx}
-          variant = 'contained'
           disabled
         >
-          00
+          <img src={cardImageFilename} alt='back' width="60" height="90"/>
         </Button>
       );
     });
 
     const cards4 = this.props.playerRemainingCards[order4].map((card, idx) => {
+      const cardImageFilename = 'assets/back_rotate.png';
       return (
         <div>
           <Button
             key = {idx}
-            variant = 'contained'
             disabled
           >
-            00
+            <img src={cardImageFilename} alt='back' width="50" height="35"/>
           </Button>
         </div>
       );
