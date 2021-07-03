@@ -40,7 +40,6 @@ module.exports = class Game {
     playCard(playerId, card) {
       if (playerId !== this.playerIds[this.nextPlayer]) {
         // not this player's turn
-        console.log("not your turn")
         return false;
       }
   
