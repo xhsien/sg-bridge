@@ -1,0 +1,2 @@
+exports.ROOM_FULL = "ROOM_FULL";
+exports.ROOM_NOT_EXIST = "ROOM_NOT_EXIST";
