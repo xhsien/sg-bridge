@@ -1,5 +1,7 @@
 const crypto = require('crypto');
 
+const errors = require('./error');
+
 const roomToPlayers = new Map();
 
 module.exports = (io, socket) => {
@@ -24,9 +26,20 @@ module.exports = (io, socket) => {
     });
   });
 
+  /* response format: {
+    "error": // null if no error; error msg if there is err
+    "data": // list of players if there is no err; null if there is err
+  }*/
   socket.on('join room', (roomNumber, callback) => {
     if (!roomToPlayers.has(roomNumber)) {
-      callback();
+      callback({
+        error: errors.ROOM_NOT_EXIST
+      });
+      return;
+    } else if (roomToPlayers.get(roomNumber).length >= 4) {
+      callback({
+        error: errors.ROOM_FULL
+      });
       return;
     }
 
@@ -34,7 +47,9 @@ module.exports = (io, socket) => {
     socket.join(roomNumber);
 
     callback({
-      players: roomToPlayers.get(roomNumber),
+      data: {
+        players: roomToPlayers.get(roomNumber),
+      }
     });
 
     io.to(roomNumber).emit('room update', roomToPlayers.get(roomNumber));
