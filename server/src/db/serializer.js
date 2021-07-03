@@ -7,4 +7,5 @@ module.exports = {
         const game = new Game(raw.playerIds, raw.playerUsernames);
         return Object.assign(game, raw);
     },
+    deserialize: (str) => JSON.parse(str),
 }
