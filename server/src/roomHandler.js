@@ -1,5 +1,7 @@
 const crypto = require('crypto');
 
+const errors = require('./error');
+
 const roomToPlayers = new Map();
 
 module.exports = (io, socket) => {
@@ -31,12 +33,12 @@ module.exports = (io, socket) => {
   socket.on('join room', (roomNumber, callback) => {
     if (!roomToPlayers.has(roomNumber)) {
       callback({
-        error: "Room does not exist."
+        error: errors.ROOM_NOT_EXIST
       });
       return;
     } else if (roomToPlayers.get(roomNumber).length >= 4) {
       callback({
-        error: "Room is already full."
+        error: errors.ROOM_FULL
       });
       return;
     }

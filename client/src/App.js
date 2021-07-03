@@ -4,6 +4,7 @@ import React from 'react';
 import RoomView from './components/roomView.js';
 import socket from './socket/index.js';
 import './App.css';
+import * as errors from "./errors";
 
 class App extends React.Component {
   constructor(props) {
@@ -143,9 +144,9 @@ class App extends React.Component {
 
     socket.emit('join room', this.state.roomNumber, (response) => {
       if (response.error) {
-        if (response.error === "Room does not exsit.") {
+        if (response.error === errors.ROOM_NOT_EXIST) {
           alert('Room does not exist.');
-        } else if (response.error === "Room is already full.") {
+        } else if (response.error === errors.ROOM_FULL) {
           alert('Room is already full.');
         }
         return;
