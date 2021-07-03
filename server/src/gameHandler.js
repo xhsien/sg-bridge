@@ -80,7 +80,7 @@ class Game {
       const winner = this.calculateWinner();
 
       this.roundNumber += 1;
-      this.nextPlayer = winner;
+      this.nextPlayer = this.nextPlayer + winner + 1; // some transformation formula
       this.currentRound = [];
       this.playerWinCounts[winner] += 1;
     }
