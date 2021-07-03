@@ -7,6 +7,7 @@ const { Server } = require('socket.io');
 
 const app = express();
 const httpServer = http.createServer(app);
+
 const ioServer = new Server(httpServer, {
   cors: {
     origins: config.ALLOWED_FRONTEND_SERVER_URLS,
