@@ -142,15 +142,19 @@ class App extends React.Component {
     this.registerHandler(socket);
 
     socket.emit('join room', this.state.roomNumber, (response) => {
-      if (!response) {
-        alert('Room does not exist.');
+      if (response.error) {
+        if (response.error === "Room does not exsit.") {
+          alert('Room does not exist.');
+        } else if (response.error === "Room is already full.") {
+          alert('Room is already full.');
+        }
         return;
       }
 
       this.setState({
         view: 'ROOM_VIEW',
         roomNumber: this.state.roomNumber,
-        players: response.players,
+        players: response.data.players,
       });
     });
   }

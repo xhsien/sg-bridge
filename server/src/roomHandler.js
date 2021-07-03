@@ -24,9 +24,20 @@ module.exports = (io, socket) => {
     });
   });
 
+  /* response format: {
+    "error": // null if no error; error msg if there is err
+    "data": // list of players if there is no err; null if there is err
+  }*/
   socket.on('join room', (roomNumber, callback) => {
     if (!roomToPlayers.has(roomNumber)) {
-      callback();
+      callback({
+        error: "Room does not exist."
+      });
+      return;
+    } else if (roomToPlayers.get(roomNumber).length >= 4) {
+      callback({
+        error: "Room is already full."
+      });
       return;
     }
 
@@ -34,7 +45,9 @@ module.exports = (io, socket) => {
     socket.join(roomNumber);
 
     callback({
-      players: roomToPlayers.get(roomNumber),
+      data: {
+        players: roomToPlayers.get(roomNumber),
+      }
     });
 
     io.to(roomNumber).emit('room update', roomToPlayers.get(roomNumber));
