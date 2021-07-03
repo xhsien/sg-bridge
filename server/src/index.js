@@ -13,8 +13,10 @@ const ioServer = new Server(httpServer, {
   }
 });
 
-httpServer.listen(config.API_PORT, () => {
-  console.log(`Http server listening on port ${config.API_PORT}`);
+const portToUse = process.env.ENV === "heroku" ? process.env.PORT : config.API_PORT
+
+httpServer.listen(portToUse, () => {
+  console.log(`Http server listening on port ${portToUse}`);
 });
 
 ioServer.use((socket, next) => {
