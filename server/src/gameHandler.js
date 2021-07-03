@@ -18,6 +18,69 @@ function shuffle(array) {
   return array;
 }
 
+class Card {
+  /**
+   * 
+   * @param {string} suit Suit of the card, one of 'C', 'D', 'H', 'S'
+   * @param {string} rank Rank of the card, one of '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'
+   */
+  constructor(suit, rank) {
+    this.suit = suit;
+    this.rank = rank;
+  }
+
+  constructor(cardString) {
+    this.suit = cardString[0];
+    this.rank = cardString[1];
+  }
+
+  getSuit() {
+    return this.suit;
+  }
+
+  getRank() {
+    return this.rank;
+  }
+
+  get() {
+    return this.suit + this.rank;
+  }
+
+  static suits = 'CDHS';
+  static ranks = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
+
+  static compareRank(card1, card2) {
+    const rankOrder1 = Card.ranks.indexOf(card1.getRank());
+    const rankOrder2 = Card.ranks.indexOf(card2.getRank());
+    if (rankOrder1 < rankOrder2) {
+      return -1;
+    } else if (rankOrder1 > rankOrder2) {
+      return 1;
+    }
+
+    return 0;    
+  }
+
+  /**
+   * Sort by suit 'C' -> 'D' -> 'H' -> 'S'
+   * then by rank '2' ->'3' ->'4' ->'5' ->'6' ->'7' ->'8' ->'9' ->'10' ->'J' ->'Q' ->'K' ->'A'
+   * 
+   * @param {!Card} card1 First card.
+   * @param {!Card} card2 Second card.
+   */
+  static compare(card1, card2) {
+    const suitOrder1 = Card.suits.indexOf(card1.getSuit());
+    const suitOrder2 = Card.suits.indexOf(card2.getSuit());
+    if (suitOrder1 < suitOrder2) {
+      return -1;
+    } else if (suitOrder1 > suitOrder2) {
+      return 1;
+    }
+
+    return Card.compareRank(card1, card2);
+  }
+}
+
 class Game {
   constructor(playerIds, playerUsernames) {
     this.roundNumber = 0;
@@ -39,17 +102,17 @@ class Game {
     const suits = ['S', 'H', 'D', 'C'];
 
     const cards = [];
-    for (let rank of ranks) {
-      for (let suit of suits) {
-        cards.push(suit + rank);
+    for (let suit of suits) {
+      for (let rank of ranks) {
+        cards.push(new Card(suit, rank));
       }
     }
 
     const shuffledCards = shuffle(cards);
-    this.playerRemainingCards.push(shuffledCards.slice(0, 13));
-    this.playerRemainingCards.push(shuffledCards.slice(13, 26));
-    this.playerRemainingCards.push(shuffledCards.slice(26, 39));
-    this.playerRemainingCards.push(shuffledCards.slice(39, 52));
+    this.playerRemainingCards.push(shuffledCards.slice(0, 13).sort(Card.compare));
+    this.playerRemainingCards.push(shuffledCards.slice(13, 26).sort(Card.compare));
+    this.playerRemainingCards.push(shuffledCards.slice(26, 39).sort(Card.compare));
+    this.playerRemainingCards.push(shuffledCards.slice(39, 52).sort(Card.compare));
   }
 
   setTrumpAndFirstPlayer(trump, firstPlayerId) {
@@ -104,12 +167,12 @@ class Game {
   }
 
   calculateWinner() {
-    const hasTrump = this.trump === 'NT' ? false : this.currentRound.some((card) => card[0] === this.trump);
+    const hasTrump = this.trump === 'NT' ? false : this.currentRound.some((card) => card.getSuit() === this.trump);
 
     if (hasTrump) {
       return this.getLargestWithTrump(this.currentRound, this.trump);
     } else {
-      return this.getLargestWithTrump(this.currentRound, this.currentRound[0][0]);
+      return this.getLargestWithTrump(this.currentRound, this.currentRound[0].getSuit());
     }
   }
 
@@ -117,23 +180,16 @@ class Game {
     let winner = -1;
     for (let i = 0; i < 4; i++) {
       const card = cards[i];
-      if (card[0] != trump) {
+      if (card.getSuit() != trump) {
         continue;
       } else if (winner == -1) {
         winner = i;
-      } else if (this.rankLarger(card, cards[winner])) {
+      } else if (Class.compareRank(card, cards[winner]) === 1) {
         winner = i;
       }
     }
 
     return winner;
-  }
-
-  rankLarger(card1, card2) {
-    const rank1 = card1[1];
-    const rank2 = card2[1];
-    const rankOrder = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
-    return rankOrder.indexOf(rank1) > rankOrder.indexOf(rank2);
   }
 };
 
@@ -167,7 +223,7 @@ module.exports = (io, socket) => {
   socket.on('play card', (roomNumber, playerId, card) => {
     console.log(`player ${playerId} played card ${card}.`);
 
-    const result = game[roomNumber].playCard(playerId, card);
+    const result = game[roomNumber].playCard(playerId, new Card(card));
     if (!result) {
       return;
     }
