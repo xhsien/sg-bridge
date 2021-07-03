@@ -3,7 +3,7 @@ const config = require("@/config");
 const { promisify } = require('util');
 const serializer = require("./serializer");
 
-const client = redis.createClient(config.REDIS_URL);
+const client = (process.env.REDIS_URL == null) ? redis.createClient(config.REDIS_URL) : process.env.REDIS_URL;
 
 const getAsync = promisify(client.get).bind(client);
 
