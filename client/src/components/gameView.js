@@ -108,25 +108,25 @@ export default class GameView extends React.Component {
       </div>
     );
 
-    const card = this.props.currentRound[order];
+    const card = this.props.currentRound[this.props.currentRoundPlayers.indexOf((order + 0) % 4)];
     const cardImageFilename = ('assets/' + card + '.png');
     const cardImg = card === undefined ? '' : (
       <img src={cardImageFilename} alt={card} width="90" height="135"/>
     );
 
-    const card2 = this.props.currentRound[order2];
+    const card2 = this.props.currentRound[this.props.currentRoundPlayers.indexOf((order + 1) % 4)];
     const cardImageFilename2 = ('assets/' + card2 + '.png');
     const cardImg2 = card2 === undefined ? '' : (
       <img src={cardImageFilename2} alt={card2} width="90" height="135"/>
     );
 
-    const card3 = this.props.currentRound[order3];
+    const card3 = this.props.currentRound[this.props.currentRoundPlayers.indexOf((order + 2) % 4)];
     const cardImageFilename3 = ('assets/' + card3 + '.png');
     const cardImg3 = card3 === undefined ? '' : (
       <img src={cardImageFilename3} alt={card3} width="90" height="135"/>
     );
 
-    const card4 = this.props.currentRound[order4];
+    const card4 = this.props.currentRound[this.props.currentRoundPlayers.indexOf((order + 3) % 4)];
     const cardImageFilename4 = ('assets/' + card4 + '.png');
     const cardImg4 = card4 === undefined ? '' : (
       <img src={cardImageFilename4} alt={card4} width="90" height="135"/>
