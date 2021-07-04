@@ -35,8 +35,34 @@ export const styles = {
     },
   },
   game: {
-    cards: {
+    cardsVertical: {
+    },
+    cardsHorizontal: {
+    },
+    verticalContainer: {
+      display: 'flex',
+      flexDirection: 'column',
+    },
+    horizontalContainer: {
+      display: 'flex',
       flexDirection: 'row',
+      height: '70vh',
+    },
+    top: {
+      height: '15vh',
+    },
+    left: {
+      width: '15vw',
+    },
+    center: {
+      width: '70vw',
+      margin: 'auto',
+    },
+    right: {
+      width: '15vw',
+    },
+    bottom: {
+      height: '15vh',
     },
   },
 };

@@ -7,14 +7,17 @@ const { Server } = require('socket.io');
 
 const app = express();
 const httpServer = http.createServer(app);
+
 const ioServer = new Server(httpServer, {
   cors: {
     origins: config.ALLOWED_FRONTEND_SERVER_URLS,
   }
 });
 
-httpServer.listen(config.API_PORT, () => {
-  console.log(`Http server listening on port ${config.API_PORT}`);
+const portToUse = process.env.ENV === "heroku" ? process.env.PORT : config.API_PORT
+
+httpServer.listen(portToUse, () => {
+  console.log(`Http server listening on port ${portToUse}`);
 });
 
 ioServer.use((socket, next) => {
