@@ -1,5 +1,5 @@
-const db = require("@/db");
-const Game = require("@/models/game")
+const db = require("./db");
+const Game = require("./models/game")
 
 module.exports = (io, socket) => {
   socket.on('start game', (roomNumber, callback) => {

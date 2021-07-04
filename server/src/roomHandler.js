@@ -1,6 +1,6 @@
 const crypto = require('crypto');
 const errors = require('./error');
-const db = require("@/db");
+const db = require("./db");
 
 module.exports = (io, socket) => {
   getNewRoom = async () => {

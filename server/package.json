@@ -4,18 +4,13 @@
   "description": "",
   "main": "src/index.js",
   "scripts": {
-    "start": "node src/index.js",
-    "postinstall": "link-module-alias"
+    "start": "node src/index.js"
   },
   "author": "kaihsien",
   "license": "ISC",
   "dependencies": {
     "express": "^4.17.1",
-    "link-module-alias": "^1.2.0",
     "redis": "^3.1.2",
     "socket.io": "^4.1.2"
-  },
-  "_moduleAliases": {
-    "@": "src"
   }
 }
