@@ -1,28 +1,28 @@
 const crypto = require('crypto');
-
 const errors = require('./error');
-
-const roomToPlayers = new Map();
+const db = require("./db");
 
 module.exports = (io, socket) => {
-  getNewRoom = () => {
+  getNewRoom = async () => {
     let newRoomNumber = null;
-    while (!newRoomNumber || roomToPlayers.has(newRoomNumber)) {
+    while (!newRoomNumber || await (db.roomExists(newRoomNumber))) {
       newRoomNumber = crypto.randomBytes(2).toString('hex').toUpperCase();
     }
 
     return newRoomNumber;
   };
 
-  socket.on('new room', (callback) => {
-    const newRoomNumber = getNewRoom();
+  socket.on('new room', async (callback) => {
+    const newRoomNumber = await getNewRoom();
 
-    roomToPlayers.set(newRoomNumber, [{id: socket.id, username: socket.username, isHost: true}]);
+    const players = [{id: socket.id, username: socket.username, isHost: true}];
+
+    db.setPlayersForRoom(newRoomNumber, players);
     socket.join(newRoomNumber);
 
     callback({
       roomNumber: newRoomNumber,
-      players: roomToPlayers.get(newRoomNumber),
+      players: players,
     });
   });
 
@@ -30,28 +30,33 @@ module.exports = (io, socket) => {
     "error": // null if no error; error msg if there is err
     "data": // list of players if there is no err; null if there is err
   }*/
-  socket.on('join room', (roomNumber, callback) => {
-    if (!roomToPlayers.has(roomNumber)) {
+  socket.on('join room', async (roomNumber, callback) => {
+    if (!await (db.roomExists(roomNumber))) {
       callback({
         error: errors.ROOM_NOT_EXIST
       });
       return;
-    } else if (roomToPlayers.get(roomNumber).length >= 4) {
+    } 
+
+    const players = await db.getPlayersForRoom(roomNumber);
+    
+    if (players.length >= 4) {
       callback({
         error: errors.ROOM_FULL
       });
       return;
     }
 
-    roomToPlayers.get(roomNumber).push({id: socket.id, username: socket.username, isHost: false});
+    players.push({id: socket.id, username: socket.username, isHost: false});
+    db.setPlayersForRoom(roomNumber, players);
     socket.join(roomNumber);
 
     callback({
       data: {
-        players: roomToPlayers.get(roomNumber),
+        players: players,
       }
     });
 
-    io.to(roomNumber).emit('room update', roomToPlayers.get(roomNumber));
+    io.to(roomNumber).emit('room update', players);
   });
 };
