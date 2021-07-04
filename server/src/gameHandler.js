@@ -72,6 +72,11 @@ class Game {
     }
 
     this.playerRemainingCards[order].splice(cardIdx, 1);
+
+    if (this.currentRound.length === 4) {
+      this.currentRound = []; // refresh
+    }
+
     this.currentRound.push(card);
 
     if (this.currentRound.length < 4) {
@@ -81,7 +86,6 @@ class Game {
 
       this.roundNumber += 1;
       this.nextPlayer = (this.nextPlayer + winner + 1) % 4; // some transformation formula
-      this.currentRound = [];
       this.playerWinCounts[winner] += 1;
     }
 
