@@ -2,7 +2,8 @@ module.exports = class Game {
     constructor(playerIds, playerUsernames) {
       this.roundNumber = 0;
       this.nextPlayer = null;
-      this.currentRound = []; // [{firstPlayer, card}, {secondPlayer, card}, {thirdPlayer, card}, {forthPlayer, card}]
+      this.currentRound = []; // [card1, card2, card3, card4]
+      this.currentRoundPlayers = [];
       this.playerRemainingCards = [];
       this.playerWinCounts = [0, 0, 0, 0];
   
@@ -12,6 +13,30 @@ module.exports = class Game {
       // metadata
       this.playerIds = playerIds;
       this.playerUsernames = playerUsernames;
+    }
+
+    compare(card1, card2) {
+      if (card1[0] < card2[0]) {
+        return -1;
+      } else if (card1[0] > card2[0]) {
+        return 1;
+      }
+
+      const rank1 = card1.slice(1);
+      const rank2 = card2.slice(1);
+
+      const ranks = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
+
+      const index1 = ranks.indexOf(rank1);
+      const index2 = ranks.indexOf(rank2);
+
+      if (index1 < index2) {
+        return -1;
+      } else if (index1 > index2) {
+        return 1;
+      }
+
+      return 0;
     }
   
     init() {
@@ -26,10 +51,10 @@ module.exports = class Game {
       }
   
       const shuffledCards = shuffle(cards);
-      this.playerRemainingCards.push(shuffledCards.slice(0, 13));
-      this.playerRemainingCards.push(shuffledCards.slice(13, 26));
-      this.playerRemainingCards.push(shuffledCards.slice(26, 39));
-      this.playerRemainingCards.push(shuffledCards.slice(39, 52));
+      this.playerRemainingCards.push(shuffledCards.slice(0, 13).sort(this.compare));
+      this.playerRemainingCards.push(shuffledCards.slice(13, 26).sort(this.compare));
+      this.playerRemainingCards.push(shuffledCards.slice(26, 39).sort(this.compare));
+      this.playerRemainingCards.push(shuffledCards.slice(39, 52).sort(this.compare));
     }
   
     setTrumpAndFirstPlayer(trump, firstPlayerId) {
@@ -55,9 +80,11 @@ module.exports = class Game {
 
       if (this.currentRound.length == 4) {
         this.currentRound = [];
+        this.currentRoundPlayers = [];
       }
 
       this.currentRound.push(card);
+      this.currentRoundPlayers.push(order);
   
       if (this.currentRound.length < 4) {
         this.nextPlayer = (order + 1) % 4;
@@ -65,8 +92,8 @@ module.exports = class Game {
         const winner = this.calculateWinner();
   
         this.roundNumber += 1;
-        this.nextPlayer = this.nextPlayer + winner + 1; // some transformation formula
-        this.playerWinCounts[winner] += 1;
+        this.nextPlayer = (this.nextPlayer + winner + 1) % 4; // some transformation formula
+        this.playerWinCounts[this.currentRoundPlayers[winner]] += 1;
       }
   
       return true;
@@ -77,6 +104,7 @@ module.exports = class Game {
         roundNumber: this.roundNumber,
         nextPlayer: this.nextPlayer,
         currentRound: this.currentRound,
+        currentRoundPlayers: this.currentRoundPlayers,
         playerRemainingCards: this.playerRemainingCards,
         playerWinCounts: this.playerWinCounts,
   
