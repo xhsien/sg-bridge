@@ -46,23 +46,47 @@ export const styles = {
     horizontalContainer: {
       display: 'flex',
       flexDirection: 'row',
-      height: '70vh',
+      height: '60vh',
     },
     top: {
-      height: '15vh',
+      height: '20vh',
     },
     left: {
-      width: '15vw',
+      width: '5vw',
     },
     center: {
       width: '70vw',
       margin: 'auto',
     },
     right: {
-      width: '15vw',
+      width: '5vw',
     },
     bottom: {
-      height: '15vh',
+      height: '20vh',
     },
+    table : {
+      verticalContainer: {
+        display: 'flex',
+        flexDirection: 'column',
+        width: '10vw'
+      },
+      horizontalContainer: {
+        display: 'flex',
+        flexDirection: 'row',
+        height: '50vh',
+      },
+      top: {
+        margin: 'auto',
+      },
+      left: {
+        margin: 'auto',
+      },
+      right: {
+        margin: 'auto',
+      },
+      bottom: {
+        margin: 'auto',
+      },
+    }
   },
 };

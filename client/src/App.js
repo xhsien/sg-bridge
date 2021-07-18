@@ -37,6 +37,7 @@ class App extends React.Component {
       roundNumber: null,
       nextPlayer: null,
       currentRound: null,
+      currentRoundPlayers: null,
       playerRemainingCards: null,
       playerWinCounts: null,
     };
@@ -64,6 +65,7 @@ class App extends React.Component {
         roundNumber: gameState.roundNumber,
         nextPlayer: gameState.nextPlayer,
         currentRound: gameState.currentRound,
+        currentRoundPlayers: gameState.currentRoundPlayers,
         playerRemainingCards: gameState.playerRemainingCards,
         playerWinCounts: gameState.playerWinCounts,
 
@@ -89,6 +91,7 @@ class App extends React.Component {
         roundNumber: gameState.roundNumber,
         nextPlayer: gameState.nextPlayer,
         currentRound: gameState.currentRound,
+        currentRoundPlayers: gameState.currentRoundPlayers,
         playerRemainingCards: gameState.playerRemainingCards,
         playerWinCounts: gameState.playerWinCounts,
       });
@@ -224,6 +227,7 @@ class App extends React.Component {
             roundNumber = {this.state.roundNumber}
             nextPlayer = {this.state.nextPlayer}
             currentRound = {this.state.currentRound}
+            currentRoundPlayers = {this.state.currentRoundPlayers}
             playerRemainingCards = {this.state.playerRemainingCards}
             playerWinCounts = {this.state.playerWinCounts}
 
