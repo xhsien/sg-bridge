@@ -84,7 +84,7 @@ class App extends React.Component {
       });
     });
 
-    this.eventRouter.registerOnCardPlayedListener('card played', (gameState) => {
+    this.eventRouter.registerOnCardPlayedListener('App', (gameState) => {
       console.log('received card played event');
 
       this.setState({
@@ -164,7 +164,7 @@ class App extends React.Component {
   onStartButtonPressed() {
     console.log('emit start game');
     console.log(this.state.roomNumber);
-    this.eventRouter.emitStartGame('start game', this.state.roomNumber, (response) => {
+    this.eventRouter.emitStartGame(this.state.roomNumber, (response) => {
       if (response.error) {
         alert(response.error);
       }
