@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import socket from './socket/index.js';
 
-module.exports = class EventRouter {
+class EventRouter {
     constructor() {
         this.socket = socket;
         this.listenersMap = new Map();
@@ -33,24 +33,33 @@ module.exports = class EventRouter {
         })
     }
 
-    registerOnConnectListener(callBackFn) {
-        this.registerListener("connect", callBackFn);
+    connect(username) {
+        socket.auth = {username: username};
+        socket.connect();
     }
 
-    registerOnRoomUpdateListener(callBackFn) {
-        this.registerListener('room update', callBackFn);
+    getSocketId() {
+        return this.socket.id;
     }
 
-    registerOnGameStartedListener(callBackFn) {
-        this.registerListener("game started", callBackFn);
+    registerOnConnectListener(id, callBackFn) {
+        this.registerListener("connect", id, callBackFn);
     }
 
-    registerOnGameSetListener(callBackFn) {
-        this.registerListener("game set", callBackFn);
+    registerOnRoomUpdateListener(id, callBackFn) {
+        this.registerListener('room update', id, callBackFn);
     }
 
-    registerOnCardPlayedListener(callBackFn) {
-        this.registerListener("card played", callBackFn);
+    registerOnGameStartedListener(id, callBackFn) {
+        this.registerListener("game started", id, callBackFn);
+    }
+
+    registerOnGameSetListener(id, callBackFn) {
+        this.registerListener("game set", id, callBackFn);
+    }
+
+    registerOnCardPlayedListener(id, callBackFn) {
+        this.registerListener("card played", id, callBackFn);
     }
 
     emitJoinRoom(roomNumber, callback) {
@@ -73,3 +82,5 @@ module.exports = class EventRouter {
         this.socket.emit("new room", callback);
     }
 }
+
+export default EventRouter

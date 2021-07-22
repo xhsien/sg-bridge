@@ -2,15 +2,15 @@ import EntryView from './components/entryView.js';
 import GameView from './components/gameView.js';
 import React from 'react';
 import RoomView from './components/roomView.js';
-import socket from './socket/index.js';
 import './App.css';
 import * as errors from "./errors";
+import EventRouter from "./EventRouter"
 
 class App extends React.Component {
   constructor(props) {
     super(props);
 
-    this.socket = socket;
+    this.eventRouter = new EventRouter();
 
     this.state = {
       view: 'ENTRY_VIEW', // ENTRY_VIEW, ROOM_VIEW, GAME_VIEW
@@ -43,20 +43,20 @@ class App extends React.Component {
     };
   }
 
-  registerHandler(socket) {
-    socket.on('connect', () => {
+  registerHandler() {
+    this.eventRouter.registerOnConnectListener('App', () => {
       this.setState({
-        id: socket.id,
+        id: this.eventRouter.getSocketId(),
       });
     });
 
-    socket.on('room update', (players) => {
+    this.eventRouter.registerOnRoomUpdateListener('App', (players) => {
       this.setState({
         players: players,
       });
     });
 
-    socket.on('game started', (gameState) => {
+    this.eventRouter.registerOnGameStartedListener('App', (gameState) => {
       console.log('received game started event');
 
       this.setState({
@@ -74,7 +74,7 @@ class App extends React.Component {
       });
     });
 
-    socket.on('game set', (gameState) => {
+    this.eventRouter.registerOnGameSetListener('App', (gameState) => {
       console.log('received game set event');
 
       this.setState({
@@ -84,7 +84,7 @@ class App extends React.Component {
       });
     });
 
-    socket.on('card played', (gameState) => {
+    this.eventRouter.registerOnCardPlayedListener('card played', (gameState) => {
       console.log('received card played event');
 
       this.setState({
@@ -116,11 +116,10 @@ class App extends React.Component {
       return;
     }
 
-    socket.auth = { username: this.state.username };
-    socket.connect();
-    this.registerHandler(socket);
+    this.eventRouter.connect(this.state.username);
+    this.registerHandler();
 
-    socket.emit('new room', (response) => {
+    this.eventRouter.emitNewRoom((response) => {
       this.setState({
         view: 'ROOM_VIEW',
         roomNumber: response.roomNumber,
@@ -141,11 +140,10 @@ class App extends React.Component {
       return;
     }
 
-    socket.auth = { username: this.state.username };
-    socket.connect();
-    this.registerHandler(socket);
+    this.eventRouter.connect(this.state.username);
+    this.registerHandler();
 
-    socket.emit('join room', this.state.roomNumber, (response) => {
+    this.eventRouter.emitJoinRoom(this.state.roomNumber, (response) => {
       if (response.error) {
         if (response.error === errors.ROOM_NOT_EXIST) {
           alert('Room does not exist.');
@@ -166,7 +164,7 @@ class App extends React.Component {
   onStartButtonPressed() {
     console.log('emit start game');
     console.log(this.state.roomNumber);
-    socket.emit('start game', this.state.roomNumber, (response) => {
+    this.eventRouter.emitStartGame('start game', this.state.roomNumber, (response) => {
       if (response.error) {
         alert(response.error);
       }
@@ -195,7 +193,7 @@ class App extends React.Component {
       return;
     }
 
-    socket.emit('setup game', this.state.roomNumber, this.state.selectedTrump, this.state.selectedFirstPlayerId, (response) => {
+    this.eventRouter.emitSetupGame(this.state.roomNumber, this.state.selectedTrump, this.state.selectedFirstPlayerId, (response) => {
       if (response.error) {
         alert(response.error);
       }
@@ -203,7 +201,7 @@ class App extends React.Component {
   }
 
   onCardPressed(id, card) {
-    socket.emit('play card', this.state.roomNumber, id, card, (response) => {
+    this.eventRouter.emitPlayCard(this.state.roomNumber, id, card, (response) => {
       if (response.error) {
         alert(response.error);
       }
