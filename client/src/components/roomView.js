@@ -16,7 +16,15 @@ export default class RoomView extends React.Component {
 
     const startButton = <Button
                           variant = 'contained'
-                          onClick={() => this.props.onStartButtonPressed()}
+                          onClick={() => {
+                            console.log('emit start game');
+                            console.log(this.props.roomNumber);
+                            this.props.eventRouter.emitStartGame(this.props.roomNumber, (response) => {
+                              if (response.error) {
+                                alert(response.error);
+                              }
+                            });
+                          }}
                         >
                           Start
                         </Button>;

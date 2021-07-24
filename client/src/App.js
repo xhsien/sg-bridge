@@ -117,16 +117,6 @@ class App extends React.Component {
     });
   }
 
-  onStartButtonPressed() {
-    console.log('emit start game');
-    console.log(this.state.roomNumber);
-    this.eventRouter.emitStartGame(this.state.roomNumber, (response) => {
-      if (response.error) {
-        alert(response.error);
-      }
-    });
-  }
-
   onCardPressed(id, card) {
     this.eventRouter.emitPlayCard(this.state.roomNumber, id, card, (response) => {
       if (response.error) {
@@ -160,7 +150,7 @@ class App extends React.Component {
             username = {this.state.username}
             players = {this.state.players}
             isHost = {this.state.isHost}
-            onStartButtonPressed = {() => this.onStartButtonPressed()}
+            eventRouter={this.eventRouter}
           />
         );
       case 'ENTRY_VIEW':
