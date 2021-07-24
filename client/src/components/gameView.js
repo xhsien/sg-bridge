@@ -44,7 +44,6 @@ export default class GameView extends React.Component {
 
     this.props.eventRouter.registerOnGameStartedListener('Game', (gameState) => {
       console.log('received game started event');
-      console.log(this.createCardsView(gameState.playerRemainingCards[this.state.order]))
 
       this.setState({
         roundNumber: gameState.roundNumber,
@@ -92,7 +91,13 @@ export default class GameView extends React.Component {
       return (
         <Button
           key = {idx}
-          onClick = {() => this.props.onCardPressed(this.props.id, card)}
+          onClick = {() => {
+            this.props.eventRouter.emitPlayCard(this.props.roomNumber, this.props.id, card, (response) => {
+              if (response.error) {
+                alert(response.error);
+              }
+            });
+          }}
         >
           <img src={cardImageFilename} alt={card} width="60" height="90"/>
         </Button>

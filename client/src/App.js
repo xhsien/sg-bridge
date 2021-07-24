@@ -117,14 +117,6 @@ class App extends React.Component {
     });
   }
 
-  onCardPressed(id, card) {
-    this.eventRouter.emitPlayCard(this.state.roomNumber, id, card, (response) => {
-      if (response.error) {
-        alert(response.error);
-      }
-    });
-  }
-
   getView() {
     switch (this.state.view) {
       case 'GAME_VIEW':
@@ -138,7 +130,6 @@ class App extends React.Component {
             playerIds = {this.state.playerIds}
             playerUsernames = {this.state.playerUsernames}
 
-            onCardPressed = {(id, card) => this.onCardPressed(id, card)}
             eventRouter={this.eventRouter}
           />
         );
