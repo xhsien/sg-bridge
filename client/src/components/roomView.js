@@ -12,8 +12,6 @@ export default class RoomView extends React.Component {
       );
     });
 
-    const isHost = players.filter((player) => player.isHost)[0].id === this.props.id;
-
     const startButton = <Button
                           variant = 'contained'
                           onClick={() => {
@@ -45,7 +43,7 @@ export default class RoomView extends React.Component {
         </div>
 
         <div>
-          {isHost ? startButton : waitText}
+          {this.props.isHost ? startButton : waitText}
         </div>
       </div>
     );
