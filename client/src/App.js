@@ -24,22 +24,10 @@ class App extends React.Component {
       roomNumber: null,
       players: null,
 
-      // game setup
-      showConfigSelection: true,
-      selectedTrump: null,
-      selectedFirstPlayerId: null,
-
       // game players
       playerIds: null,
       playerUsernames: null,
 
-      // game state
-      roundNumber: null,
-      nextPlayer: null,
-      currentRound: null,
-      currentRoundPlayers: null,
-      playerRemainingCards: null,
-      playerWinCounts: null,
     };
   }
 
@@ -57,43 +45,11 @@ class App extends React.Component {
     });
 
     this.eventRouter.registerOnGameStartedListener('App', (gameState) => {
-      console.log('received game started event');
-
       this.setState({
         view: 'GAME_VIEW',
 
-        roundNumber: gameState.roundNumber,
-        nextPlayer: gameState.nextPlayer,
-        currentRound: gameState.currentRound,
-        currentRoundPlayers: gameState.currentRoundPlayers,
-        playerRemainingCards: gameState.playerRemainingCards,
-        playerWinCounts: gameState.playerWinCounts,
-
         playerIds: gameState.playerIds,
         playerUsernames: gameState.playerUsernames,
-      });
-    });
-
-    this.eventRouter.registerOnGameSetListener('App', (gameState) => {
-      console.log('received game set event');
-
-      this.setState({
-        showConfigSelection: false,
-        selectedTrump: gameState.selectedTrump,
-        selectedFirstPlayerId: gameState.selectedFirstPlayerId,
-      });
-    });
-
-    this.eventRouter.registerOnCardPlayedListener('App', (gameState) => {
-      console.log('received card played event');
-
-      this.setState({
-        roundNumber: gameState.roundNumber,
-        nextPlayer: gameState.nextPlayer,
-        currentRound: gameState.currentRound,
-        currentRoundPlayers: gameState.currentRoundPlayers,
-        playerRemainingCards: gameState.playerRemainingCards,
-        playerWinCounts: gameState.playerWinCounts,
       });
     });
   }
@@ -171,35 +127,6 @@ class App extends React.Component {
     });
   }
 
-  onTrumpChanged(selectedTrump) {
-    this.setState({
-      selectedTrump: selectedTrump,
-    });
-  }
-
-  onFirstPlayerChanged(selectedFirstPlayerId) {
-    this.setState({
-      selectedFirstPlayerId: selectedFirstPlayerId,
-    });
-  }
-
-  onSetupGame() {
-    if (!this.state.selectedTrump) {
-      alert('Missing trump.');
-      return;
-    }
-    if (!this.state.selectedFirstPlayerId) {
-      alert('Missing first player.');
-      return;
-    }
-
-    this.eventRouter.emitSetupGame(this.state.roomNumber, this.state.selectedTrump, this.state.selectedFirstPlayerId, (response) => {
-      if (response.error) {
-        alert(response.error);
-      }
-    });
-  }
-
   onCardPressed(id, card) {
     this.eventRouter.emitPlayCard(this.state.roomNumber, id, card, (response) => {
       if (response.error) {
@@ -215,25 +142,14 @@ class App extends React.Component {
           <GameView
             id = {this.state.id}
             username = {this.state.username}
+            roomNumber = {this.state.roomNumber}
             isHost = {this.state.isHost}
-
-            showConfigSelection = {this.state.showConfigSelection}
 
             playerIds = {this.state.playerIds}
             playerUsernames = {this.state.playerUsernames}
 
-            roundNumber = {this.state.roundNumber}
-            nextPlayer = {this.state.nextPlayer}
-            currentRound = {this.state.currentRound}
-            currentRoundPlayers = {this.state.currentRoundPlayers}
-            playerRemainingCards = {this.state.playerRemainingCards}
-            playerWinCounts = {this.state.playerWinCounts}
-
-            onTrumpChanged = {(selectedTrump) => this.onTrumpChanged(selectedTrump)}
-            onFirstPlayerChanged = {(selectedFirstPlayerId) => this.onFirstPlayerChanged(selectedFirstPlayerId)}
-            onSetupGame = {() => this.onSetupGame()}
-
             onCardPressed = {(id, card) => this.onCardPressed(id, card)}
+            eventRouter={this.eventRouter}
           />
         );
       case 'ROOM_VIEW':
