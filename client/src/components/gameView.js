@@ -8,25 +8,105 @@ import React from "react";
 import { styles } from "./styles.js";
 
 export default class GameView extends React.Component {
-  render() {
-    const order = this.props.playerIds.indexOf(this.props.id);
-    const order2 = (order + 1) % 4
-    const order3 = (order + 2) % 4
-    const order4 = (order + 3) % 4
+  state = {
+    showConfigSelection: true,
+    selectedTrump: null,
+    selectedFirstPlayerId: null,
 
-    const cards = this.props.playerRemainingCards[order].map((card, idx) => {
+    // game state
+    roundNumber: null,
+    nextPlayer: null,
+    currentRound: null,
+    currentRoundPlayers: null,
+    playerRemainingCards: null,
+    playerWinCounts: [0, 0, 0, 0], //dummy init to prevent NPE
+
+    // order is index of players in playerIds
+    order: 0,
+    order2: 0,
+    order3: 0,
+    order4: 0,
+
+    // views
+    cards: null,
+    cards2: null,
+    cards3: null,
+    cards4: null,
+
+  }
+
+  componentDidMount() {
+    this.props.eventRouter.registerOnGameSetListener('Game', () => {
+      this.setState({
+        showConfigSelection: false,
+      });
+    })
+
+    this.props.eventRouter.registerOnGameStartedListener('Game', (gameState) => {
+      console.log('received game started event');
+
+      this.setState({
+        roundNumber: gameState.roundNumber,
+        nextPlayer: gameState.nextPlayer,
+        currentRound: gameState.currentRound,
+        currentRoundPlayers: gameState.currentRoundPlayers,
+        playerRemainingCards: gameState.playerRemainingCards,
+        playerWinCounts: gameState.playerWinCounts,
+
+        cards: this.createCardsView(gameState.playerRemainingCards[this.state.order]),
+        cards2: this.createCards2View(gameState.playerRemainingCards[this.state.order2]),
+        cards3: this.createCards3View(gameState.playerRemainingCards[this.state.order3]),
+        cards4: this.createCards4View(gameState.playerRemainingCards[this.state.order4]),
+
+      });
+    });
+
+    this.props.eventRouter.registerOnCardPlayedListener('Game', (gameState) => {
+      console.log('received card played event');
+
+      this.setState({
+        roundNumber: gameState.roundNumber,
+        nextPlayer: gameState.nextPlayer,
+        currentRound: gameState.currentRound,
+        currentRoundPlayers: gameState.currentRoundPlayers,
+        playerRemainingCards: gameState.playerRemainingCards,
+        playerWinCounts: gameState.playerWinCounts,
+
+        cards: this.createCardsView(gameState.playerRemainingCards[this.state.order]),
+        cards2: this.createCards2View(gameState.playerRemainingCards[this.state.order2]),
+        cards3: this.createCards3View(gameState.playerRemainingCards[this.state.order3]),
+        cards4: this.createCards4View(gameState.playerRemainingCards[this.state.order4]),
+
+      });
+    });
+  }
+
+  componentWillUnmount() {
+    this.props.eventRouter.removeAllListeners("Game");
+  }
+
+  createCardsView(cards) {
+    return cards.map((card, idx) => {
       const cardImageFilename = 'assets/' + card + '.png';
       return (
         <Button
           key = {idx}
-          onClick = {() => this.props.onCardPressed(this.props.id, card)}
+          onClick = {() => {
+            this.props.eventRouter.emitPlayCard(this.props.roomNumber, this.props.id, card, (response) => {
+              if (response.error) {
+                alert(response.error);
+              }
+            });
+          }}
         >
           <img src={cardImageFilename} alt={card} width="60" height="90"/>
         </Button>
       );
     });
+  };
 
-    const cards2 = this.props.playerRemainingCards[order2].map((card, idx) => {
+  createCards2View(cards) {
+    return cards.map((card, idx) => {
       const cardImageFilename = 'assets/back_rotate.png';
       return (
         <div>
@@ -39,8 +119,10 @@ export default class GameView extends React.Component {
         </div>
       );
     });
+  };
 
-    const cards3 = this.props.playerRemainingCards[order3].map((card, idx) => {
+  createCards3View(cards) {
+    return cards.map((card, idx) => {
       const cardImageFilename = 'assets/back.png';
       return (
         <Button
@@ -51,8 +133,10 @@ export default class GameView extends React.Component {
         </Button>
       );
     });
+  };
 
-    const cards4 = this.props.playerRemainingCards[order4].map((card, idx) => {
+  createCards4View(cards) {
+    return cards.map((card, idx) => {
       const cardImageFilename = 'assets/back_rotate.png';
       return (
         <div>
@@ -65,11 +149,60 @@ export default class GameView extends React.Component {
         </div>
       );
     });
+  };
+
+  constructor(props) {
+    super(props);
+    // these states are set here to ensure they are only set once per instance of game view
+    // if they are in render(), they'll be set on every update, triggering render() recursively
+    const order = props.playerIds.indexOf(this.props.id);
+    this.state.order = order;
+    this.state.order2 = (order + 1) % 4
+    this.state.order3 = (order + 2) % 4
+    this.state.order4 = (order + 3) % 4
+  }
+
+  render() {
+    const order = this.state.order;
+    const order2 = this.state.order2;
+    const order3 = this.state.order3;
+    const order4 = this.state.order4;
+
+
+
+    const onTrumpChanged = (event) => {
+      this.setState({
+        selectedTrump: event.target.value,
+      });
+    }
+  
+    const onFirstPlayerChanged = (event) => {
+      this.setState({
+        selectedFirstPlayerId: event.target.value,
+      });
+    }
+
+    const onSetupGame = () => {
+      if (!this.state.selectedTrump) {
+        alert('Missing trump.');
+        return;
+      }
+      if (!this.state.selectedFirstPlayerId) {
+        alert('Missing first player.');
+        return;
+      }
+  
+      this.props.eventRouter.emitSetupGame(this.props.roomNumber, this.state.selectedTrump, this.state.selectedFirstPlayerId, (response) => {
+        if (response.error) {
+          alert(response.error);
+        }
+      });
+    }
 
     const configScreen = (
       <div>
 
-        <FormControl component="fieldset" onChange = {(event) => this.props.onTrumpChanged(event.target.value)}>
+        <FormControl component="fieldset" onChange = {onTrumpChanged}>
           <FormLabel component="legend">Trump</FormLabel>
           <RadioGroup>
             <FormControlLabel value="S" control={<Radio />} label="S" />
@@ -80,7 +213,7 @@ export default class GameView extends React.Component {
           </RadioGroup>
         </FormControl>
 
-        <FormControl component="fieldset" onChange = {(event) => this.props.onFirstPlayerChanged(event.target.value)}>
+        <FormControl component="fieldset" onChange = {onFirstPlayerChanged}>
           <FormLabel component="legend">First Player</FormLabel>
           <RadioGroup>
             <FormControlLabel value={this.props.playerIds[order]} control={<Radio />} label={this.props.playerUsernames[order]} />
@@ -93,7 +226,7 @@ export default class GameView extends React.Component {
         <div>
           <Button
             variant = 'contained'
-            onClick = {() => this.props.onSetupGame()}
+            onClick = {onSetupGame}
           >
             Start
           </Button>
@@ -108,29 +241,36 @@ export default class GameView extends React.Component {
       </div>
     );
 
-    const card = this.props.currentRound[this.props.currentRoundPlayers.indexOf((order + 0) % 4)];
-    const cardImageFilename = ('assets/' + card + '.png');
-    const cardImg = card === undefined ? '' : (
-      <img src={cardImageFilename} alt={card} width="90" height="135"/>
-    );
+    let cardImg = '';
+    let cardImg2 = '';
+    let cardImg3 = '';
+    let cardImg4 = '';
 
-    const card2 = this.props.currentRound[this.props.currentRoundPlayers.indexOf((order + 1) % 4)];
-    const cardImageFilename2 = ('assets/' + card2 + '.png');
-    const cardImg2 = card2 === undefined ? '' : (
-      <img src={cardImageFilename2} alt={card2} width="90" height="135"/>
-    );
-
-    const card3 = this.props.currentRound[this.props.currentRoundPlayers.indexOf((order + 2) % 4)];
-    const cardImageFilename3 = ('assets/' + card3 + '.png');
-    const cardImg3 = card3 === undefined ? '' : (
-      <img src={cardImageFilename3} alt={card3} width="90" height="135"/>
-    );
-
-    const card4 = this.props.currentRound[this.props.currentRoundPlayers.indexOf((order + 3) % 4)];
-    const cardImageFilename4 = ('assets/' + card4 + '.png');
-    const cardImg4 = card4 === undefined ? '' : (
-      <img src={cardImageFilename4} alt={card4} width="90" height="135"/>
-    );
+    if (this.state.currentRound != null && this.state.currentRoundPlayers != null) {
+      const card = this.state.currentRound[this.state.currentRoundPlayers.indexOf((order + 0) % 4)];
+      const cardImageFilename = ('assets/' + card + '.png');
+      cardImg = card === undefined ? '' : (
+        <img src={cardImageFilename} alt={card} width="90" height="135"/>
+      );
+  
+      const card2 = this.state.currentRound[this.state.currentRoundPlayers.indexOf((order + 1) % 4)];
+      const cardImageFilename2 = ('assets/' + card2 + '.png');
+      cardImg2 = card2 === undefined ? '' : (
+        <img src={cardImageFilename2} alt={card2} width="90" height="135"/>
+      );
+  
+      const card3 = this.state.currentRound[this.state.currentRoundPlayers.indexOf((order + 2) % 4)];
+      const cardImageFilename3 = ('assets/' + card3 + '.png');
+      cardImg3 = card3 === undefined ? '' : (
+        <img src={cardImageFilename3} alt={card3} width="90" height="135"/>
+      );
+  
+      const card4 = this.state.currentRound[this.state.currentRoundPlayers.indexOf((order + 3) % 4)];
+      const cardImageFilename4 = ('assets/' + card4 + '.png');
+      cardImg4 = card4 === undefined ? '' : (
+        <img src={cardImageFilename4} alt={card4} width="90" height="135"/>
+      );
+    }
 
     const tableScreen = (
       <div style={styles.game.table.horizontalContainer}>
@@ -165,9 +305,9 @@ export default class GameView extends React.Component {
 
           <div style={styles.game.top}>
             {this.props.playerUsernames[order3]}
-            ({this.props.playerWinCounts[order3]})
+            ({this.state.playerWinCounts[order3]})
             <div style={styles.cardsHorizontal}>
-              {cards3}
+              {this.state.cards3}
             </div>
           </div>
 
@@ -175,23 +315,23 @@ export default class GameView extends React.Component {
 
             <div style={styles.game.left}>
               {this.props.playerUsernames[order2]}
-              ({this.props.playerWinCounts[order2]})
+              ({this.state.playerWinCounts[order2]})
               <div style={styles.cardsVertical}>
-                {cards2}
+                {this.state.cards2}
               </div>
             </div>
 
             <div style={styles.game.center}>
-              {this.props.showConfigSelection && this.props.isHost ? configScreen : ""}
-              {this.props.showConfigSelection && !this.props.isHost ? waitingScreen : ""}
-              {!this.props.showConfigSelection ? tableScreen : ""}
+              {this.state.showConfigSelection && this.props.isHost ? configScreen : ""}
+              {this.state.showConfigSelection && !this.props.isHost ? waitingScreen : ""}
+              {!this.state.showConfigSelection ? tableScreen : ""}
             </div>
 
             <div style={styles.game.right}>
               {this.props.playerUsernames[order4]}
-              ({this.props.playerWinCounts[order4]})
+              ({this.state.playerWinCounts[order4]})
               <div style={styles.cardsVertical}>
-                {cards4}
+                {this.state.cards4}
               </div>
             </div>
 
@@ -199,10 +339,10 @@ export default class GameView extends React.Component {
 
           <div style={styles.game.bottom}>
             <div style={styles.cardsHorizontal}>
-              {cards}
+              {this.state.cards}
             </div>
             {this.props.username}
-            ({this.props.playerWinCounts[order]})
+            ({this.state.playerWinCounts[order]})
           </div>
 
         </div>
