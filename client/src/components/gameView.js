@@ -153,7 +153,8 @@ export default class GameView extends React.Component {
 
   constructor(props) {
     super(props);
-    console.log("constructor")
+    // these states are set here to ensure they are only set once per instance of game view
+    // if they are in render(), they'll be set on every update, triggering render() recursively
     const order = props.playerIds.indexOf(this.props.id);
     this.state.order = order;
     this.state.order2 = (order + 1) % 4

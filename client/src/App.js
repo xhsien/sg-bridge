@@ -3,7 +3,6 @@ import GameView from './components/gameView.js';
 import React from 'react';
 import RoomView from './components/roomView.js';
 import './App.css';
-import * as errors from "./errors";
 import EventRouter from "./EventRouter"
 
 class App extends React.Component {
@@ -31,7 +30,7 @@ class App extends React.Component {
     };
   }
 
-  registerHandler() {
+  registerHandler = () => {
     this.eventRouter.registerOnConnectListener('App', () => {
       this.setState({
         id: this.eventRouter.getSocketId(),
@@ -66,54 +65,22 @@ class App extends React.Component {
     });
   }
 
-  onCreateRoom() {
-    if (!this.state.username) {
-      alert('Missing username.');
-      return;
-    }
-
-    this.eventRouter.connect(this.state.username);
-    this.registerHandler();
-
-    this.eventRouter.emitNewRoom((response) => {
-      this.setState({
-        view: 'ROOM_VIEW',
-        roomNumber: response.roomNumber,
-        players: response.players,
-        isHost: true,
-      });
+  onCreatedRoom = (roomNumber, username, players) => {
+    this.setState({
+      view: 'ROOM_VIEW',
+      username: username, 
+      roomNumber: roomNumber,
+      players: players,
+      isHost: true,
     });
   }
 
-  onJoinRoom(roomNumber) {
-    if (!this.state.username) {
-      alert('Missing username.');
-      return;
-    }
-
-    if (!this.state.roomNumber) {
-      alert('Missing room number.');
-      return;
-    }
-
-    this.eventRouter.connect(this.state.username);
-    this.registerHandler();
-
-    this.eventRouter.emitJoinRoom(this.state.roomNumber, (response) => {
-      if (response.error) {
-        if (response.error === errors.ROOM_NOT_EXIST) {
-          alert('Room does not exist.');
-        } else if (response.error === errors.ROOM_FULL) {
-          alert('Room is already full.');
-        }
-        return;
-      }
-
-      this.setState({
-        view: 'ROOM_VIEW',
-        roomNumber: this.state.roomNumber,
-        players: response.data.players,
-      });
+  onJoinedRoom = (username, roomNumber, players) => {
+    this.setState({
+      view: 'ROOM_VIEW',
+      username: username, 
+      roomNumber: roomNumber,
+      players: players,
     });
   }
 
@@ -148,10 +115,10 @@ class App extends React.Component {
       default:
         return (
           <EntryView
-            onUsernameChanged = {(username) => this.onUsernameChanged(username)}
-            onRoomNumberChanged = {(roomNumber) => this.onRoomNumberChanged(roomNumber)}
-            onCreateRoom = {() => this.onCreateRoom()}
-            onJoinRoom = {(roomNumber) => this.onJoinRoom(roomNumber)}
+            onCreatedRoom = {this.onCreatedRoom}
+            onJoinedRoom = {this.onJoinedRoom}
+            onConnected = {this.registerHandler}
+            eventRouter = {this.eventRouter}
           />
         );
     }
